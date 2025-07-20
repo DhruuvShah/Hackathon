@@ -1,6 +1,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { 
+    signInWithEmailAndPassword, 
+    createUserWithEmailAndPassword,
+    signOut 
+} from 'firebase/auth';
+import { auth, db } from '../../firebase/config'; // Ensure this path is correct
+import { doc, setDoc } from 'firebase/firestore';
 
+// Check local storage for user info
 const userInfoFromStorage = localStorage.getItem('userInfo')
   ? JSON.parse(localStorage.getItem('userInfo'))
   : null;
@@ -11,30 +18,63 @@ const initialState = {
   error: null,
 };
 
+// --- LOGIN THUNK (Updated for Firebase) ---
 export const login = createAsyncThunk(
   'auth/login',
   async ({ email, password }, { rejectWithValue }) => {
     try {
-      const config = { headers: { 'Content-Type': 'application/json' } };
-      const { data } = await axios.post('/api/users/login', { email, password }, config);
-      localStorage.setItem('userInfo', JSON.stringify(data));
-      return data;
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      // We store a simplified user object in Redux and localStorage
+      const simplifiedUser = { uid: user.uid, email: user.email, name: user.displayName };
+      localStorage.setItem('userInfo', JSON.stringify(simplifiedUser));
+      return simplifiedUser;
     } catch (error) {
-      return rejectWithValue(error.response.data.message || error.message);
+      // Return a user-friendly error message from Firebase
+      return rejectWithValue(error.code ? error.code.replace('auth/', '').replace(/-/g, ' ') : 'Login failed');
     }
   }
 );
 
+// --- REGISTER THUNK (Updated for Firebase) ---
+export const register = createAsyncThunk(
+  'auth/register',
+  async ({ name, email, password }, { rejectWithValue }) => {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      // Add user's details to the Firestore database
+      await setDoc(doc(db, 'users', user.uid), { 
+          name, 
+          email, 
+          createdAt: new Date() 
+      });
+      const simplifiedUser = { uid: user.uid, email: user.email, name: name };
+      localStorage.setItem('userInfo', JSON.stringify(simplifiedUser));
+      return simplifiedUser;
+    } catch (error) {
+      return rejectWithValue(error.code ? error.code.replace('auth/', '').replace(/-/g, ' ') : 'Registration failed');
+    }
+  }
+);
+
+// --- LOGOUT THUNK (Updated for Firebase) ---
 export const logout = createAsyncThunk('auth/logout', async () => {
+    await signOut(auth);
     localStorage.removeItem('userInfo');
 });
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
-  reducers: {},
+  reducers: {
+      clearError: (state) => {
+          state.error = null;
+      }
+  },
   extraReducers: (builder) => {
     builder
+      // Login cases
       .addCase(login.pending, (state) => {
         state.status = 'loading';
         state.error = null;
@@ -47,6 +87,20 @@ const authSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload;
       })
+      // Register cases
+      .addCase(register.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(register.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.userInfo = action.payload;
+      })
+      .addCase(register.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      })
+      // Logout case
       .addCase(logout.fulfilled, (state) => {
         state.userInfo = null;
         state.status = 'idle';
@@ -54,4 +108,5 @@ const authSlice = createSlice({
   },
 });
 
+export const { clearError } = authSlice.actions;
 export default authSlice.reducer;

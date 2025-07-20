@@ -1,36 +1,88 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import RevealOnScroll from '../components/RevealOnScroll';
+import RevealOnScroll from '../components/RevealOnScroll'; // A reusable animation component
+import regulatorImg from '../assets/images/hyrox_certified_desktop.png.webp';
+import acceleratorImg from '../assets/images/Section-1.png.webp';
+import recoverImg from '../assets/images/Section-2.png.webp';
+import sustainImg from '../assets/images/train_anywhere.png.webp';
 
+// New, more detailed program data
 export const programsData = [
-    { id: 'strength', title: "Foundation Strength", description: "Build a powerful physique with our foundational strength and conditioning program.", img: "https://images.unsplash.com/photo-1599058917212-d750089bc07e?q=80&w=2069&auto=format&fit=crop" },
-    { id: 'yoga', title: "Mindful Movement", description: "Enhance flexibility, balance, and mental clarity with guided yoga and meditation.", img: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=2120&auto=format&fit=crop" },
-    { id: 'hiit', title: "Ignite HIIT", description: "Torch calories and boost your metabolism with high-intensity interval training sessions.", img: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=2070&auto=format&fit=crop" }
+    { 
+        id: 'hyrox-regulator', 
+        title: "Hyrox Regulator",
+        category: "Full-Body Training",
+        description: "Build a powerful, well-rounded physique with a program that balances strength, power, and metabolic conditioning for peak performance.",
+        img: regulatorImg,
+        tags: ["Strength", "Power", "Conditioning"]
+    },
+    { 
+        id: 'hyrox-accelerator', 
+        title: "Hyrox Accelerator",
+        category: "Strength and Power",
+        description: "Focus on explosive strength and raw power development. This program is designed to increase your core lifts and improve athletic acceleration.",
+        img: acceleratorImg,
+        tags: ["Explosive", "Powerlifting", "Speed"]
+    },
+    { 
+        id: 'hyrox-recover', 
+        title: "Hyrox Recover",
+        category: "Post-Data Recovery",
+        description: "Optimize your recovery with targeted mobility, flexibility, and low-intensity sessions designed to reduce soreness and improve readiness.",
+        img: recoverImg,
+        tags: ["Mobility", "Flexibility", "Yoga"]
+    },
+    { 
+        id: 'hyrox-sustain', 
+        title: "Hyrox Sustain",
+        category: "Stay Race-Ready",
+        description: "Maintain your peak fitness level with a balanced program that keeps you sharp, strong, and ready for competition year-round.",
+        img: sustainImg,
+        tags: ["Endurance", "Maintenance", "Cardio"]
+    }
 ];
 
 const Programs = () => (
     <section id="programs" className="py-20 sm:py-24 pt-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <RevealOnScroll>
-                <div className="text-center">
-                    <h2 className="text-3xl md:text-4xl font-bold text-white">Tailored Fitness Programs</h2>
+                <div className="text-center mb-20">
+                    <h2 className="text-4xl md:text-5xl font-extrabold text-white">
+                        Find Your Program
+                    </h2>
                     <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-400">
-                        From strength training to mindfulness, find the perfect program designed to help you achieve your goals.
+                        Engineered for every goal, from peak performance to active recovery.
+                        Choose your path to excellence.
                     </p>
                 </div>
             </RevealOnScroll>
-            <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+            <div className="space-y-24">
                 {programsData.map((program, index) => (
-                    <RevealOnScroll key={program.id} delay={index * 200}>
-                        <Link to={`/programs/${program.id}`}>
-                            <div className="glass-effect rounded-3xl overflow-hidden group transition-all duration-500 hover:shadow-2xl hover:shadow-blue-600/20 hover:-translate-y-2">
-                                <img src={program.img} alt={program.title} className="w-full h-60 object-cover group-hover:scale-105 transition-transform duration-500" />
-                                <div className="p-6">
-                                    <h3 className="text-xl font-bold text-white">{program.title}</h3>
-                                    <p className="text-gray-300 mt-2">{program.description}</p>
-                                </div>
+                    <RevealOnScroll key={program.id}>
+                        <div className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center`}>
+                            {/* Alternate image and text order for visual variety */}
+                            <div className={`group relative rounded-3xl overflow-hidden ${index % 2 === 0 ? 'lg:order-1' : 'lg:order-2'}`}>
+                                <img src={program.img} alt={program.title} className="w-full h-[500px] object-cover group-hover:scale-105 transition-transform duration-500" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                             </div>
-                        </Link>
+
+                            <div className={`text-center lg:text-left ${index % 2 === 0 ? 'lg:order-2' : 'lg:order-1'}`}>
+                                <p className="text-blue-400 font-semibold mb-2">{program.category}</p>
+                                <h3 className="text-3xl font-bold text-white mb-4">{program.title}</h3>
+                                <p className="text-gray-300 text-lg mb-6">{program.description}</p>
+                                <div className="flex flex-wrap justify-center lg:justify-start gap-2 mb-8">
+                                    {program.tags.map(tag => (
+                                        <span key={tag} className="glass-effect text-xs font-medium py-1.5 px-3 rounded-full text-gray-300">
+                                            {tag}
+                                        </span>
+                                    ))}
+                                </div>
+                                <Link to={`/programs/${program.id}`} className="inline-block bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105">
+                                    View Program
+                                </Link>
+                            </div>
+                        </div>
                     </RevealOnScroll>
                 ))}
             </div>

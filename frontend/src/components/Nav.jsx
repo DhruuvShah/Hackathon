@@ -24,6 +24,7 @@ const Nav = () => {
                 <div className="lg:flex items-center gap-8">
                     <NavLink to="/" className={linkClass}>Home</NavLink>
                     <NavLink to="/programs" className={linkClass}>Programs</NavLink>
+                    <NavLink to="/shop" className={linkClass}>Shop</NavLink>
                     <NavLink to="/about" className={linkClass}>About</NavLink>
                 </div>
                 <div className="lg:flex items-center">
@@ -48,6 +49,7 @@ const Nav = () => {
                     <NavLink to="/" className={mobileLinkClass} onClick={() => setIsOpen(false)}>HOME</NavLink>
                     <NavLink to="/programs" className={mobileLinkClass} onClick={() => setIsOpen(false)}>PROGRAMS</NavLink>
                     <NavLink to="/about" className={mobileLinkClass} onClick={() => setIsOpen(false)}>ABOUT</NavLink>
+                    <NavLink to="/shop" className={mobileLinkClass} onClick={() => setIsOpen(false)}>SHOP</NavLink>
                     <div className="mt-4 border-t border-white/10 pt-4">
                         {userInfo ? (
                             <button onClick={handleLogout} className="w-full text-center bg-red-600 hover:bg-red-500 text-white font-semibold py-2 px-5 rounded-xl">
