@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../features/auth/authSlice';
+import logo from '../assets/images/Logo_-_Horizontal.png.webp';
 
 const Nav = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -19,11 +20,11 @@ const Nav = () => {
     return (
         <header id="navbar" className="fixed top-4 left-1/2 -translate-x-1/2 w-[95%] max-w-7xl z-50">
             <nav className="glass-effect flex items-center justify-between p-3 rounded-2xl shadow-lg">
-                <Link to="/"><img className="text-2xl font-bold tracking-tight text-white" src="../assets/images/Logo_-_Horizontal.png.webp" alt="Centr Logo" /></Link>
+                <Link to="/"><img src={logo} alt="Centr Logo" /></Link>
                 <div className="lg:flex items-center gap-8">
-                    <NavLink to="/" className={linkClass}>HOME</NavLink>
-                    <NavLink to="/programs" className={linkClass}>PROGRAMS</NavLink>
-                    <NavLink to="/about" className={linkClass}>ABOUT</NavLink>
+                    <NavLink to="/" className={linkClass}>Home</NavLink>
+                    <NavLink to="/programs" className={linkClass}>Programs</NavLink>
+                    <NavLink to="/about" className={linkClass}>About</NavLink>
                 </div>
                 <div className="lg:flex items-center">
                     {userInfo ? (
