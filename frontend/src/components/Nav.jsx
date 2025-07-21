@@ -15,21 +15,29 @@ const Nav = () => {
     }
 
     const linkClass = ({ isActive }) => `transition-colors duration-300 ${isActive ? 'text-white' : 'text-gray-400 hover:text-white'}`;
-    const mobileLinkClass = "block py-2 " + linkClass({isActive: false});
+    const mobileLinkClass = "block py-2 " + linkClass({ isActive: false });
 
     return (
         <header id="navbar" className="fixed top-4 left-1/2 -translate-x-1/2 w-[95%] max-w-7xl z-50">
             <nav className="glass-effect flex items-center justify-between p-3 rounded-2xl shadow-lg">
-                <Link to="/"><img src={logo} alt="Centr Logo" /></Link>
-                <div className="lg:flex items-center gap-8">
+                <Link to="/">
+                    <img src={logo} alt="Centr Logo"/> {/* Added a class for sizing */}
+                </Link>
+                <div className="hidden lg:flex items-center gap-8">
                     <NavLink to="/" className={linkClass}>Home</NavLink>
                     <NavLink to="/programs" className={linkClass}>Programs</NavLink>
                     <NavLink to="/shop" className={linkClass}>Shop</NavLink>
+
+                    {/* --- CHANGE: Conditionally render Profile link --- */}
+                    {userInfo && (
+                        <NavLink to="/profile" className={linkClass}>Profile</NavLink>
+                    )}
+
                     <NavLink to="/about" className={linkClass}>About</NavLink>
                 </div>
-                <div className="lg:flex items-center">
+                <div className="hidden lg:flex items-center">
                     {userInfo ? (
-                         <button onClick={handleLogout} className="bg-red-600 hover:bg-red-500 text-white font-semibold py-2 px-5 rounded-xl transition-all">
+                        <button onClick={handleLogout} className="bg-red-600 hover:bg-red-500 text-white font-semibold py-2 px-5 rounded-xl transition-all">
                             Logout
                         </button>
                     ) : (
@@ -46,10 +54,16 @@ const Nav = () => {
             </nav>
             {isOpen && (
                 <div className="lg:hidden mt-2 glass-effect rounded-2xl p-4">
-                    <NavLink to="/" className={mobileLinkClass} onClick={() => setIsOpen(false)}>HOME</NavLink>
-                    <NavLink to="/programs" className={mobileLinkClass} onClick={() => setIsOpen(false)}>PROGRAMS</NavLink>
-                    <NavLink to="/about" className={mobileLinkClass} onClick={() => setIsOpen(false)}>ABOUT</NavLink>
-                    <NavLink to="/shop" className={mobileLinkClass} onClick={() => setIsOpen(false)}>SHOP</NavLink>
+                    <NavLink to="/" className={mobileLinkClass} onClick={() => setIsOpen(false)}>Home</NavLink>
+                    <NavLink to="/programs" className={mobileLinkClass} onClick={() => setIsOpen(false)}>Programs</NavLink>
+                    <NavLink to="/shop" className={mobileLinkClass} onClick={() => setIsOpen(false)}>Shop</NavLink>
+
+                    {/* --- CHANGE: Conditionally render Profile link in mobile menu --- */}
+                    {userInfo && (
+                        <NavLink to="/profile" className={mobileLinkClass} onClick={() => setIsOpen(false)}>Profile</NavLink>
+                    )}
+
+                    <NavLink to="/about" className={mobileLinkClass} onClick={() => setIsOpen(false)}>About</NavLink>
                     <div className="mt-4 border-t border-white/10 pt-4">
                         {userInfo ? (
                             <button onClick={handleLogout} className="w-full text-center bg-red-600 hover:bg-red-500 text-white font-semibold py-2 px-5 rounded-xl">

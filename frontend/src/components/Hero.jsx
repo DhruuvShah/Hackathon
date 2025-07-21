@@ -3,7 +3,7 @@ import RevealOnScroll from './RevealOnScroll';
 import { Link as RouterLink } from 'react-router-dom';
 
 const Hero = () => (
-    <section id="hero" className="h-screen w-full flex items-center justify-center bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=2070&auto=format&fit=crop')" }}>
+    <section id="hero" className="h-screen w-full flex items-center justify-center bg-cover bg-center" style={{ backgroundImage: "url('https://media1.popsugar-assets.com/files/thumbor/ZCEsLlGyZ75tIfXGFsiWYvBfGKg=/6495x4024/top/filters:format_auto():quality(85):extract_cover()/2022/09/27/985/n/1922729/tmp_tCCALX_b3ed58eba0ba50f6_Chris_Hemsworth_Centr_Power_2_1_.jpg')" }}>
         <div className="absolute inset-0 bg-black/60"></div>
         <div className="relative z-10 text-center px-4">
             <RevealOnScroll>

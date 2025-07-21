@@ -3,27 +3,27 @@ import { Link } from 'react-router-dom';
 import RevealOnScroll from '../components/RevealOnScroll';
 import { allProducts } from '../data/product'; // Import the central data store
 
-// Filter out only the Home Gyms products from the central data store
-const homeGymsProductsData = Object.entries(allProducts)
-    .filter(([id]) => id.startsWith('hg'))
+// Filter out only the Accessories products from the central data store
+const accessoriesProductsData = Object.entries(allProducts)
+    .filter(([id]) => id.startsWith('ac'))
     .map(([id, data]) => ({ id, ...data }));
 
-const HomeGyms = () => {
+const Accessories = () => {
   return (
     <div className="pt-20">
       {/* --- Hero Section --- */}
       <section 
         className="relative h-[60vh] bg-cover bg-center flex items-center text-white"
-        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1576678927484-cc907957088c?q=80&w=1974')" }}
+        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1590487988256-5ed29f62c5c9?q=80&w=1974')" }}
       >
         <div className="absolute inset-0 bg-black/70"></div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center">
           <RevealOnScroll>
             <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight">
-              Home Gyms
+              Fitness Accessories
             </h1>
             <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-300">
-              Build your ultimate home workout space with our all-in-one functional trainers and commercial-grade attachments.
+              Elevate your training with our collection of workout essentials, designed to add versatility and intensity to any routine.
             </p>
           </RevealOnScroll>
         </div>
@@ -33,7 +33,7 @@ const HomeGyms = () => {
       <section className="py-20 sm:py-24 bg-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                {homeGymsProductsData.map((product, index) => (
+                {accessoriesProductsData.map((product, index) => (
                     <RevealOnScroll key={product.id} delay={index * 50}>
                         <Link to={`/product/${product.id}`} className="glass-effect rounded-3xl overflow-hidden group flex flex-col h-full transition-all duration-300 hover:shadow-2xl hover:shadow-blue-600/20 hover:-translate-y-2">
                             {/* Image container with hover effect */}
@@ -63,4 +63,4 @@ const HomeGyms = () => {
   );
 };
 
-export default HomeGyms;
+export default Accessories;

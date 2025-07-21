@@ -1,73 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import RevealOnScroll from '../components/RevealOnScroll'; // Assuming this component exists
+import RevealOnScroll from '../components/RevealOnScroll';
+import { allProducts } from '../data/product'; // Import the central data store
 
-// --- Mock Data for the Cardio Collection Page ---
-const cardioProductsData = [
-    { 
-        id: 'cd01', 
-        name: 'Official Hyrox Perform Tread',
-        price: '$5,299.00',
-        img: 'https://images.unsplash.com/photo-1579758629938-03607ccdbaba?q=80&w=800',
-        category: 'Performance Treadmills'
-    },
-    { 
-        id: 'cd02', 
-        name: 'Inspire Series T7x Treadmill with 15.6" Screen',
-        price: '$5,999.00',
-        img: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800',
-        category: 'Premium Treadmills'
-    },
-    { 
-        id: 'cd03', 
-        name: 'Inspire Series T7 Treadmill',
-        price: '$5,499.00',
-        img: 'https://images.unsplash.com/photo-1558611848-73f7eb4001a1?q=80&w=800',
-        category: 'Premium Treadmills'
-    },
-    { 
-        id: 'cd04', 
-        name: 'Inspire Series T5x Treadmill with 15.6" Screen',
-        price: '$4,999.00',
-        img: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?q=80&w=800',
-        category: 'Folding Treadmills'
-    },
-    { 
-        id: 'cd05', 
-        name: 'Inspire Series T5 Treadmill',
-        price: '$4,599.00',
-        img: 'https://images.unsplash.com/photo-1623944333939-99c2f8f53c40?q=80&w=800',
-        category: 'Folding Treadmills'
-    },
-    { 
-        id: 'cd06', 
-        name: 'Inspire Series T4x Folding Treadmill with 10" Screen',
-        price: '$3,999.00',
-        img: 'https://images.unsplash.com/photo-1605296867304-46d5465a13f1?q=80&w=800',
-        category: 'Folding Treadmills'
-    },
-    { 
-        id: 'cd07', 
-        name: 'Inspire Series T4 Folding Treadmill',
-        price: '$2,999.00',
-        img: 'https://images.unsplash.com/photo-1599058917212-d750089bc07e?q=80&w=800',
-        category: 'Folding Treadmills'
-    },
-    { 
-        id: 'cd08', 
-        name: 'Centr Run-8 Treadmill with 10" Screen',
-        price: '$1,599.00',
-        img: 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?q=80&w=800',
-        category: 'Home Essentials'
-    },
-    { 
-        id: 'cd09', 
-        name: 'Centr RUNR Treadmill',
-        price: '$1,199.00',
-        img: 'https://images.unsplash.com/photo-1581009137052-c40971b5146b?q=80&w=800',
-        category: 'Home Essentials'
-    },
-];
+// Filter out only the Cardio products from the central data store
+const cardioProductsData = Object.entries(allProducts)
+    .filter(([id]) => id.startsWith('cd'))
+    .map(([id, data]) => ({ id, ...data }));
 
 const Cardio = () => {
   return (
@@ -96,10 +35,13 @@ const Cardio = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 {cardioProductsData.map((product, index) => (
                     <RevealOnScroll key={product.id} delay={index * 50}>
-                        <Link to="#" className="glass-effect rounded-3xl overflow-hidden group flex flex-col h-full transition-all duration-300 hover:shadow-2xl hover:shadow-blue-600/20 hover:-translate-y-2">
-                            <div className="relative overflow-hidden">
-                                <img src={product.img} alt={product.name} className="w-full h-72 object-cover" />
-                                <div className="absolute inset-0 bg-black/20"></div>
+                        <Link to={`/product/${product.id}`} className="glass-effect rounded-3xl overflow-hidden group flex flex-col h-full transition-all duration-300 hover:shadow-2xl hover:shadow-blue-600/20 hover:-translate-y-2">
+                            {/* Image container with hover effect */}
+                            <div className="relative h-80 overflow-hidden">
+                                {/* Primary Image */}
+                                <img src={product.imgPrimary} alt={product.name} className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-100 group-hover:opacity-0" />
+                                {/* Secondary Image (visible on hover) */}
+                                <img src={product.imgSecondary} alt={`${product.name} alternate view`} className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-0 group-hover:opacity-100" />
                             </div>
                             <div className="p-6 flex flex-col flex-grow">
                                 <p className="text-sm text-blue-400 font-semibold">{product.category}</p>
@@ -107,7 +49,7 @@ const Cardio = () => {
                                 <div className="mt-4 flex items-center justify-between">
                                     <p className="text-2xl font-semibold text-white">{product.price}</p>
                                     <div className="inline-block text-white font-semibold py-2 px-5 rounded-xl transition-all duration-300 bg-blue-600/20 group-hover:bg-blue-600/50">
-                                        View
+                                        View Details
                                     </div>
                                 </div>
                             </div>

@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom';
 import RevealOnScroll from '../components/RevealOnScroll';
 import { allProducts } from '../data/product'; // Import the central data store
 
-// Filter out only the Home Gyms products from the central data store
-const homeGymsProductsData = Object.entries(allProducts)
-    .filter(([id]) => id.startsWith('hg'))
+// CORRECTED: Filter for product IDs starting with 'bn' instead of 'br'
+const benchesRacksProductsData = Object.entries(allProducts)
+    .filter(([id]) => id.startsWith('bn'))
     .map(([id, data]) => ({ id, ...data }));
 
-const HomeGyms = () => {
+const BenchesRacks = () => {
   return (
     <div className="pt-20">
       {/* --- Hero Section --- */}
@@ -20,10 +20,10 @@ const HomeGyms = () => {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center">
           <RevealOnScroll>
             <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight">
-              Home Gyms
+              Adjustable Benches & Racks
             </h1>
             <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-300">
-              Build your ultimate home workout space with our all-in-one functional trainers and commercial-grade attachments.
+              The foundation of any serious home gym. Engineered for stability, versatility, and performance.
             </p>
           </RevealOnScroll>
         </div>
@@ -33,7 +33,7 @@ const HomeGyms = () => {
       <section className="py-20 sm:py-24 bg-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                {homeGymsProductsData.map((product, index) => (
+                {benchesRacksProductsData.map((product, index) => (
                     <RevealOnScroll key={product.id} delay={index * 50}>
                         <Link to={`/product/${product.id}`} className="glass-effect rounded-3xl overflow-hidden group flex flex-col h-full transition-all duration-300 hover:shadow-2xl hover:shadow-blue-600/20 hover:-translate-y-2">
                             {/* Image container with hover effect */}
@@ -63,4 +63,4 @@ const HomeGyms = () => {
   );
 };
 
-export default HomeGyms;
+export default BenchesRacks;
