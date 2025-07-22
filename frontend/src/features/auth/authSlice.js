@@ -1,15 +1,14 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { 
-    signOut,
-    updateProfile as firebaseUpdateProfile,
-    updateEmail,
-    updatePassword,
-    GoogleAuthProvider,
-    signInWithPopup
+import {
+  signOut,
+  updateProfile as firebaseUpdateProfile,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from 'firebase/auth';
 import { auth, db } from '../../firebase/config';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 
+// Get user info from localStorage if available
 const userInfoFromStorage = localStorage.getItem('userInfo')
   ? JSON.parse(localStorage.getItem('userInfo'))
   : null;
@@ -40,30 +39,56 @@ export const signInWithGoogle = createAsyncThunk(
         });
       }
 
-      const simplifiedUser = { 
-        uid: user.uid, 
-        email: user.email, 
-        name: user.displayName 
+      const simplifiedUser = {
+        uid: user.uid,
+        email: user.email,
+        name: user.displayName,
       };
       localStorage.setItem('userInfo', JSON.stringify(simplifiedUser));
       return simplifiedUser;
     } catch (error) {
-      return rejectWithValue(error.code ? error.code.replace('auth/', '').replace(/-/g, ' ') : 'Google sign-in failed');
+      return rejectWithValue(
+        error.code
+          ? error.code.replace('auth/', '').replace(/-/g, ' ')
+          : 'Google sign-in failed'
+      );
     }
   }
 );
 
 // --- LOGOUT THUNK ---
 export const logout = createAsyncThunk('auth/logout', async () => {
-    await signOut(auth);
-    localStorage.removeItem('userInfo');
+  await signOut(auth);
+  localStorage.removeItem('userInfo');
 });
 
-// --- UPDATE PROFILE THUNK ---
+// --- UPDATE PROFILE THUNK (FINAL WORKING CODE) ---
 export const updateProfile = createAsyncThunk(
   'auth/updateProfile',
-  async ({ name, email, password }, { rejectWithValue }) => {
-    // ... (This function remains the same as before)
+  async ({ name }, { getState, rejectWithValue }) => {
+    try {
+      const { userInfo } = getState().auth;
+      if (!userInfo || !auth.currentUser) {
+        throw new Error('No user logged in');
+      }
+
+      // 1. Update Firebase Auth display name
+      await firebaseUpdateProfile(auth.currentUser, { displayName: name });
+
+      // 2. Update Firestore user name
+      const userDocRef = doc(db, 'users', userInfo.uid);
+      await updateDoc(userDocRef, { name });
+
+      // 3. Update user object and localStorage
+      const updatedUser = {
+        ...userInfo,
+        name,
+      };
+      localStorage.setItem('userInfo', JSON.stringify(updatedUser));
+      return updatedUser;
+    } catch (error) {
+      return rejectWithValue(error.message || 'Failed to update profile');
+    }
   }
 );
 
@@ -71,15 +96,15 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-      clearError: (state) => {
-          state.error = null;
-      }
+    clearError: (state) => {
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(logout.fulfilled, (state) => { 
-          state.userInfo = null; 
-          state.status = 'idle'; 
+      .addCase(logout.fulfilled, (state) => {
+        state.userInfo = null;
+        state.status = 'idle';
       })
       .addCase(signInWithGoogle.pending, (state) => {
         state.status = 'loading';
@@ -98,8 +123,9 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(updateProfile.fulfilled, (state, action) => {
-        state.status = 'succeeded';
         state.userInfo = action.payload;
+        state.status = 'succeeded';
+        state.error = null;
       })
       .addCase(updateProfile.rejected, (state, action) => {
         state.status = 'failed';
@@ -110,5 +136,3 @@ const authSlice = createSlice({
 
 export const { clearError } = authSlice.actions;
 export default authSlice.reducer;
-
-
