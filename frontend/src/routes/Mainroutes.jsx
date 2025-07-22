@@ -9,10 +9,10 @@ import AuthWrapper from './AuthWrapper';
 import UnauthWrapper from './UnauthWrapper';
 import ShopEquipments from '../pages/ShopEquipments';
 import Hyrox from '../pages/Hyrox';
-import Cardio from '../pages/Cardio'; 
+import Cardio from '../pages/Cardio';
 import HomeGyms from '../pages/HomeGyms';
-import Profile from '../pages/Profile'; 
-import Weights from '../pages/Weights'; 
+import Profile from '../pages/Profile';
+import Weights from '../pages/Weights';
 import BenchesRacks from '../pages/BenchesRacks';
 import Accessories from '../pages/Accessories';
 import PageNotFound from '../pages/PageNotFound';
@@ -20,6 +20,10 @@ import ProductDetails from '../pages/ProductDetails';
 import Support from '../pages/Support';
 import Privacy from '../pages/Privacy';
 import Careers from '../pages/Careers';
+import Cart from '../pages/Cart';
+
+
+
 
 const MainRoutes = () => {
   return (
@@ -40,17 +44,20 @@ const MainRoutes = () => {
       <Route path="/support" element={<Support />} />
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/careers" element={<Careers />} />
-      
+      <Route path="/cart" element={<Cart />} />
+
+
       {/* --- Unauthenticated Routes --- */}
       <Route element={<UnauthWrapper />}>
         <Route path="/login" element={<Login />} />
-        {/* The /register route is now removed */}
       </Route>
 
       {/* --- Authenticated Routes --- */}
       <Route element={<AuthWrapper />}>
         <Route path="/profile" element={<Profile />} />
-      </Route> 
+        <Route path="/cart" element={<Cart />} />
+
+      </Route>
 
       <Route path="*" element={<PageNotFound />} />
     </Routes>

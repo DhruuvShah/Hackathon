@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { useParams, Link as RouterLink } from 'react-router-dom';
-import { allProducts } from '../data/product'; // Import the central data store
+import { useParams, Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux'; // Import useSelector
+import { allProducts } from '../data/product';
 import RevealOnScroll from '../components/RevealOnScroll';
-import { Disclosure } from '@headlessui/react'; // A library for accessible UI components
+import { Disclosure } from '@headlessui/react';
+import { useCart } from '../context/CartContext';
 
 // Helper icon component for the accordion
 const ChevronUpIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="http://www.w3.org/2000/svg" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
         <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
     </svg>
 );
@@ -15,6 +17,26 @@ const ProductDetails = () => {
     const { id } = useParams();
     const product = allProducts[id];
     const [quantity, setQuantity] = useState(1);
+    const { addToCart } = useCart();
+    const [added, setAdded] = useState(false);
+    const [activeImage, setActiveImage] = useState(product?.imgPrimary);
+    
+    // Get user info and navigation function
+    const { userInfo } = useSelector((state) => state.auth);
+    const navigate = useNavigate();
+
+    const handleAddToCart = () => {
+        // Check if user is logged in
+        if (userInfo) {
+            const productWithId = { ...product, id }; 
+            addToCart(productWithId, quantity);
+            setAdded(true);
+            setTimeout(() => setAdded(false), 2500);
+        } else {
+            // If not logged in, redirect to the login page
+            navigate('/login');
+        }
+    };
 
     if (!product) {
         return (
@@ -27,21 +49,35 @@ const ProductDetails = () => {
         );
     }
 
+    const galleryImages = [product.imgPrimary, product.imgSecondary].filter(Boolean);
+
     return (
         <section className="py-20 sm:py-24 pt-32">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
                     {/* Left Column: Image Gallery */}
                     <RevealOnScroll>
-                        <div className="space-y-4">
-                            <img src={product.imgPrimary} alt={product.name} className="w-full h-auto object-cover rounded-3xl shadow-2xl shadow-black/30" />
-                            <img src={product.imgSecondary} alt={`${product.name} alternate view`} className="w-full h-auto object-cover rounded-3xl shadow-2xl shadow-black/30" />
+                        <div className="lg:sticky top-32 space-y-4">
+                            <div className="aspect-square w-full">
+                                <img src={activeImage} alt={product.name} className="w-full h-full object-cover rounded-3xl shadow-2xl shadow-black/30" />
+                            </div>
+                            <div className="grid grid-cols-4 gap-4">
+                                {galleryImages.map((imgSrc, index) => (
+                                    <button 
+                                        key={index} 
+                                        onClick={() => setActiveImage(imgSrc)}
+                                        className={`aspect-square rounded-xl overflow-hidden border-2 transition-colors ${activeImage === imgSrc ? 'border-blue-500' : 'border-transparent hover:border-gray-600'}`}
+                                    >
+                                        <img src={imgSrc} alt={`${product.name} thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </RevealOnScroll>
 
                     {/* Right Column: Product Info */}
                     <RevealOnScroll delay={200}>
-                        <div className="lg:sticky top-32">
+                        <div>
                             <p className="text-sm text-gray-400 font-medium mb-2">{product.category}</p>
                             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
                                 {product.name}
@@ -50,7 +86,6 @@ const ProductDetails = () => {
                                 {product.price}
                             </p>
                             
-                            {/* Quantity Selector */}
                             <div className="mb-6">
                                 <p className="text-sm font-medium text-gray-300 mb-2">Quantity</p>
                                 <div className="inline-flex items-center glass-effect rounded-lg">
@@ -64,22 +99,28 @@ const ProductDetails = () => {
                                 </div>
                             </div>
 
-                            <button className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105">
-                                Add to Cart
+                            <button 
+                                onClick={handleAddToCart}
+                                className={`w-full text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 ${added ? 'bg-green-600 hover:bg-green-500' : 'bg-blue-600 hover:bg-blue-500'}`}
+                            >
+                                {added ? 'Added to Cart!' : 'Add to Cart'}
                             </button>
 
-                            {/* Accordion for Details */}
+                            <div className="mt-8 glass-effect rounded-lg p-4">
+                                <h4 className="font-bold text-white">CENTR X HYROX TRAINING PROGRAM</h4>
+                                <p className="text-gray-300 mt-2 text-sm">Get the competitive edge with Centr's 12-week HYROX-certified training program. <RouterLink to="/programs" className="text-blue-400 hover:underline">Learn More</RouterLink></p>
+                            </div>
+
                             <div className="mt-8 space-y-2">
                                 <Disclosure>
                                     {({ open }) => (
                                         <div className="glass-effect rounded-lg p-4">
                                             <Disclosure.Button className="w-full flex justify-between items-center font-semibold text-white">
                                                 <span>Description</span>
-                                                {/* This is the interactive arrow. It rotates 180 degrees when the panel is closed. */}
                                                 <ChevronUpIcon className={`${open ? '' : 'transform rotate-180'} transition-transform duration-300`} />
                                             </Disclosure.Button>
-                                            <Disclosure.Panel className="mt-4 text-gray-300">
-                                                {product.description}
+                                            <Disclosure.Panel className="mt-4 text-gray-300 prose prose-invert max-w-none">
+                                                <p>{product.description}</p>
                                             </Disclosure.Panel>
                                         </div>
                                     )}
@@ -93,6 +134,19 @@ const ProductDetails = () => {
                                             </Disclosure.Button>
                                             <Disclosure.Panel className="mt-4 text-gray-300">
                                                 Content for product specifications will go here.
+                                            </Disclosure.Panel>
+                                        </div>
+                                    )}
+                                </Disclosure>
+                                <Disclosure>
+                                    {({ open }) => (
+                                        <div className="glass-effect rounded-lg p-4">
+                                            <Disclosure.Button className="w-full flex justify-between items-center font-semibold text-white">
+                                                <span>Warranty</span>
+                                                <ChevronUpIcon className={`${open ? '' : 'transform rotate-180'} transition-transform duration-300`} />
+                                            </Disclosure.Button>
+                                            <Disclosure.Panel className="mt-4 text-gray-300">
+                                                Content for warranty information will go here.
                                             </Disclosure.Panel>
                                         </div>
                                     )}

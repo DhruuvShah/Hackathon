@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logout, updateProfile, clearError } from "../features/auth/authSlice";
@@ -12,50 +12,39 @@ const Profile = () => {
 
     const [isEditing, setIsEditing] = useState(false);
     const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
     
-    const prevStatusRef = useRef(status);
+    console.log("Component Rendered. Status:", status, "UserInfo:", userInfo);
 
-    // Effect to populate form when user info is loaded
     useEffect(() => {
         if (userInfo) {
             setName(userInfo.name || "");
-            setEmail(userInfo.email || "");
         }
         dispatch(clearError());
     }, [userInfo, dispatch]);
 
-    // This effect is the key to fixing the "stuck button".
-    // It watches for the 'status' to change from 'loading' to something else.
-    useEffect(() => {
-        if (prevStatusRef.current === "loading" && status !== "loading") {
-            if (status === "succeeded") {
-                setIsEditing(false); // Exit edit mode on success
-            }
-            // If the status is 'failed', the error will display and the button
-            // will automatically re-enable because `status` is no longer 'loading'.
-        }
-        // Update the ref to the current status for the next render.
-        prevStatusRef.current = status;
-    }, [status]);
-
     const handleLogout = () => {
         dispatch(logout());
-        navigate("/login");
     };
 
     const handleSaveChanges = (e) => {
         e.preventDefault();
-        const updateData = { name, email };
-        // We just dispatch the action. The useEffect above will handle the result.
-        dispatch(updateProfile(updateData));
+        console.log("Attempting to save profile with name:", name);
+        dispatch(updateProfile({ name }))
+            .unwrap()
+            .then((updatedUser) => {
+                console.log("SUCCESS: Profile updated.", updatedUser);
+                setIsEditing(false); // Exit edit mode on success
+            })
+            .catch((err) => {
+                console.error("FAILURE: Profile update failed.", err);
+                // The error is already in the Redux store, so it will display automatically.
+            });
     };
 
     const handleCancelEdit = () => {
         setIsEditing(false);
         if (userInfo) {
             setName(userInfo.name);
-            setEmail(userInfo.email);
         }
         dispatch(clearError());
     };
@@ -65,12 +54,8 @@ const Profile = () => {
             <div className="max-w-2xl w-full mx-auto px-4 sm:px-6 lg:px-8">
                 <RevealOnScroll>
                     <div className="text-center mb-12">
-                        <h1 className="text-4xl md:text-5xl font-extrabold text-white">
-                            My Profile
-                        </h1>
-                        <p className="mt-4 text-lg text-gray-400">
-                            View and manage your account details.
-                        </p>
+                        <h1 className="text-4xl md:text-5xl font-extrabold text-white">My Profile</h1>
+                        <p className="mt-4 text-lg text-gray-400">View and manage your account details.</p>
                     </div>
 
                     <div className="glass-effect rounded-3xl p-8">
@@ -88,36 +73,19 @@ const Profile = () => {
                                             required
                                         />
                                     </div>
-                                    {/* <div>
-                                        <label className="block text-gray-300 mb-2" htmlFor="email">Email Address</label>
-                                        <input
-                                            type="email"
-                                            id="email"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            className="w-full bg-gray-900/50 border border-gray-700 text-white rounded-xl p-3 focus:ring-blue-500 focus:border-blue-500"
-                                            required
-                                        />
-                                    </div> */}
+                                    <div>
+                                        <label className="block text-gray-300 mb-2">Email Address (Cannot be changed)</label>
+                                        <p className="w-full bg-gray-900/20 border border-transparent text-gray-400 rounded-xl p-3">
+                                            {userInfo?.email || "user@example.com"}
+                                        </p>
+                                    </div>
                                 </div>
                                 {error && (
-                                    <p className="bg-red-500/20 text-red-400 p-3 rounded-lg mt-4 text-center capitalize">
-                                        {error}
-                                    </p>
+                                    <p className="bg-red-500/20 text-red-400 p-3 rounded-lg mt-4 text-center capitalize">{error}</p>
                                 )}
                                 <div className="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row gap-4">
-                                    <button
-                                        type="button"
-                                        onClick={handleCancelEdit}
-                                        className="w-full bg-gray-600/80 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        disabled={status === "loading"}
-                                        className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 disabled:opacity-50"
-                                    >
+                                    <button type="button" onClick={handleCancelEdit} className="w-full bg-gray-600/80 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-xl transition-all">Cancel</button>
+                                    <button type="submit" disabled={status === "loading"} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-6 rounded-xl transition-all disabled:opacity-50">
                                         {status === "loading" ? "Saving..." : "Save Changes"}
                                     </button>
                                 </div>
@@ -133,27 +101,13 @@ const Profile = () => {
                                         </div>
                                     </div>
                                     <div className="flex-grow">
-                                        <h2 className="text-2xl font-bold text-white">
-                                            {userInfo?.name || "User Name"}
-                                        </h2>
-                                        <p className="text-md text-gray-400 mt-1">
-                                            {userInfo?.email || "user@example.com"}
-                                        </p>
+                                        <h2 className="text-2xl font-bold text-white">{userInfo?.name || "User Name"}</h2>
+                                        <p className="text-md text-gray-400 mt-1">{userInfo?.email || "user@example.com"}</p>
                                     </div>
                                 </div>
                                 <div className="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row gap-4">
-                                    <button
-                                        onClick={() => setIsEditing(true)}
-                                        className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300"
-                                    >
-                                        Edit Profile
-                                    </button>
-                                    <button
-                                        onClick={handleLogout}
-                                        className="w-full bg-red-600/80 hover:bg-red-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300"
-                                    >
-                                        Logout
-                                    </button>
+                                    <button onClick={() => setIsEditing(true)} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-6 rounded-xl transition-all">Edit Profile</button>
+                                    <button onClick={handleLogout} className="w-full bg-red-600/80 hover:bg-red-600 text-white font-semibold py-3 px-6 rounded-xl transition-all">Logout</button>
                                 </div>
                             </>
                         )}
