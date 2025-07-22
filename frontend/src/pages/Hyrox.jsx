@@ -13,8 +13,8 @@ const Hyrox = () => {
     <div className="pt-20">
       {/* --- Hero Section --- */}
       <section 
-        className="relative h-[60vh] bg-cover bg-center flex items-end pb-16 text-white"
-        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?q=80&w=1974')" }}
+        className="relative h-[60vh] bg-cover bg-center flex items-center pb-16 text-white"
+        style={{ backgroundImage: "url('https://shop.centr.com/cdn/shop/files/CEN25_0614-Category_page_DESKTOP_HYROX.jpg?v=1752621575&width=2000')" }}
       >
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-black/20"></div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -14,7 +14,7 @@ const Weights = () => {
       {/* --- Hero Section --- */}
       <section 
         className="relative h-[60vh] bg-cover bg-center flex items-center text-white"
-        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?q=80&w=1974')" }}
+        style={{ backgroundImage: "url('https://shop.centr.com/cdn/shop/files/CEN25_0614-Category_page_DESKTOP_WEIGHTS.jpg?v=1752112441&width=2000')" }}
       >
         <div className="absolute inset-0 bg-black/70"></div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center">

@@ -1,4 +1,4 @@
-import React from 'react';
+import { FaXTwitter } from "react-icons/fa6";
 import { Link } from 'react-router-dom';
 import logo from '../assets/images/Logo_-_Horizontal.png.webp'; // Make sure this path is correct
 
@@ -48,18 +48,21 @@ const Footer = () => (
 
             {/* Social Media Icons */}
             <div className="flex justify-center gap-6 mb-8">
-                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+                <a href="https://www.instagram.com/centrfit/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
                     <InstagramIcon />
                 </a>
-                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+                <a href="https://www.facebook.com/CentrFit/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
                     <FacebookIcon />
                 </a>
-                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
-                    <LinkedInIcon />
+                <a href="https://www.youtube.com/centrfit" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M23.498 6.186a2.967 2.967 0 00-2.088-2.088C19.479 3.5 12 3.5 12 3.5s-7.479 0-9.41.598A2.967 2.967 0 00.502 6.186C0 8.116 0 12 0 12s0 3.884.502 5.814a2.967 2.967 0 002.088 2.088C4.521 20.5 12 20.5 12 20.5s7.479 0 9.41-.598a2.967 2.967 0 002.088-2.088C24 15.884 24 12 24 12s0-3.884-.502-5.814zM9.546 15.568V8.432L15.818 12l-6.272 3.568z" />
+                    </svg>
                 </a>
-                <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
-                    <XIcon />
+                <a href="https://x.com/centrfit" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+                    <FaXTwitter size={24} />
                 </a>
+
             </div>
 
             <p>&copy; 2025 Centr. All Rights Reserved.</p>

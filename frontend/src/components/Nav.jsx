@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../features/auth/authSlice';
 import { useCart } from '../context/CartContext';
 import logo from '../assets/images/Logo_-_Horizontal.png.webp'; // Make sure this path is correct
+import gsap from 'gsap';
 
 // --- SVG Icon Components ---
 const CartIcon = () => (
@@ -36,6 +37,9 @@ const Nav = () => {
     const dispatch = useDispatch();
     const { cartItems } = useCart();
 
+    const navbarRef = useRef(null);
+    const mobileMenuRef = useRef(null);
+
     const totalItemsInCart = cartItems.reduce((total, item) => total + item.quantity, 0);
 
     const handleLogout = () => {
@@ -46,8 +50,30 @@ const Nav = () => {
     const linkClass = ({ isActive }) => `transition-colors duration-300 ${isActive ? 'text-white' : 'text-gray-400 hover:text-white'}`;
     const mobileLinkClass = "block py-2 text-lg " + linkClass({isActive: false});
 
+    // GSAP animation for navbar on mount
+    useEffect(() => {
+        if (navbarRef.current) {
+            gsap.fromTo(
+                navbarRef.current,
+                { y: -32, opacity: 0 },
+                { y: 0, opacity: 1, duration: 0.8, ease: "power2.out" }
+            );
+        }
+    }, []);
+
+    // GSAP animation for mobile menu on open
+    useEffect(() => {
+        if (isOpen && mobileMenuRef.current) {
+            gsap.fromTo(
+                mobileMenuRef.current,
+                { y: -16, opacity: 0 },
+                { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }
+            );
+        }
+    }, [isOpen]);
+
     return (
-        <header id="navbar" className="fixed top-4 left-1/2 -translate-x-1/2 w-[95%] max-w-7xl z-50">
+        <header id="navbar" ref={navbarRef} className="fixed top-4 left-1/2 -translate-x-1/2 w-[95%] max-w-7xl z-50">
             <nav className="glass-effect flex items-center justify-between p-3 rounded-2xl shadow-lg">
                 <Link to="/" className="flex-shrink-0">
                     <img src={logo} alt="Centr Logo"/>
@@ -95,7 +121,7 @@ const Nav = () => {
             
             {/* Mobile Menu Panel */}
             {isOpen && (
-                <div className="lg:hidden mt-2 glass-effect rounded-2xl p-6">
+                <div ref={mobileMenuRef} className="lg:hidden mt-2 glass-effect rounded-2xl p-6">
                     <nav className="flex flex-col space-y-4">
                         <NavLink to="/" className={mobileLinkClass} onClick={() => setIsOpen(false)}>Home</NavLink>
                         <NavLink to="/programs" className={mobileLinkClass} onClick={() => setIsOpen(false)}>Programs</NavLink>
@@ -104,7 +130,6 @@ const Nav = () => {
                         
                         {userInfo && (
                              <NavLink to="/profile" className={mobileLinkClass} onClick={() => setIsOpen(false)}>Profile</NavLink>
-                             
                         )}
 
                         <div className="border-t border-white/10 pt-4 mt-4">

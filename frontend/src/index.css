@@ -7,7 +7,7 @@ body {
 }
 
 .glass-effect {
-    background: rgba(30, 41, 59, 0.5); /* Darker glass for better contrast */
+    background: rgba(30, 41, 59, 0.5); 
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -40,8 +40,25 @@ body {
 }
 
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;     /* Firefox */
+  -ms-overflow-style: none;  
+  scrollbar-width: none;     
+}
+
+.Toastify__toast--success {
+  background: rgba(30, 41, 59, 0.75) !important; 
+  box-shadow: 0 8px 32px 0 rgba(56,189,248,0.13), 0 1.5px 16px 0 rgba(168,85,247,0.09);
+  border: 1.5px solid rgba(255,255,255,0.13);
+  backdrop-filter: blur(8px);
+  color: #fff !important;
+}
+
+
+.Toastify__toast--success {
+  border-left: none !important;
+}
+
+.Toastify__toast--success .Toastify__progress-bar {
+  background: linear-gradient(90deg, #38bdf8, #a855f7) !important;
 }
 
 @keyframes spin {

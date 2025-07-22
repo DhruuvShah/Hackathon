@@ -14,16 +14,17 @@ const Cardio = () => {
       {/* --- Hero Section --- */}
       <section 
         className="relative h-[60vh] bg-cover bg-center flex items-center text-white"
-        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=2070')" }}
+        style={{ backgroundImage: "url('https://shop.centr.com/cdn/shop/files/CEN25_0614-Category_page_DESKTOP_CARDIO.jpg?v=1752112441&width=2000')" }}
       >
-        <div className="absolute inset-0 bg-black/60"></div>
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="absolute inset-0 bg-black/70"></div>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center">
           <RevealOnScroll>
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">
-              Cardio Training Equipment
+            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight">
+               Cardio Training Equipment
             </h1>
-            <p className="mt-4 max-w-xl text-lg text-gray-200">
-              Push your limits with our range of performance-engineered cardio machines.
+            <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-300">
+               Push your limits with our range of performance-engineered cardio machines.
+
             </p>
           </RevealOnScroll>
         </div>

@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logout, updateProfile, clearError } from "../features/auth/authSlice";
 import RevealOnScroll from "../components/RevealOnScroll";
+import { toast } from "react-toastify";
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -16,7 +17,6 @@ const Profile = () => {
 
   const prevStatusRef = useRef(status);
 
-  // Populate form with user info when loaded
   useEffect(() => {
     if (userInfo) {
       setName(userInfo.name || "");
@@ -25,11 +25,11 @@ const Profile = () => {
     dispatch(clearError());
   }, [userInfo, dispatch]);
 
-  // Handle status changes to exit edit mode or re-enable buttons
   useEffect(() => {
     if (prevStatusRef.current === "loading" && status !== "loading") {
       if (status === "succeeded") {
         setIsEditing(false);
+        toast.success("Username Changed Successfully");
       }
     }
     prevStatusRef.current = status;
@@ -37,12 +37,13 @@ const Profile = () => {
 
   const handleLogout = () => {
     dispatch(logout());
+    toast.success("Logged Out Successfully");
     navigate("/login");
   };
 
   const handleSaveChanges = (e) => {
     e.preventDefault();
-    dispatch(updateProfile({ name })); // Only updating name, as requested
+    dispatch(updateProfile({ name }));
   };
 
   const handleCancelEdit = () => {
@@ -84,18 +85,6 @@ const Profile = () => {
                       required
                     />
                   </div>
-                  {/* Email input is commented out as per original design */}
-                  {/* <div>
-                    <label className="block text-gray-300 mb-2" htmlFor="email">Email Address</label>
-                    <input
-                      type="email"
-                      id="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full bg-gray-900/50 border border-gray-700 text-white rounded-xl p-3 focus:ring-blue-500 focus:border-blue-500"
-                      required
-                    />
-                  </div> */}
                 </div>
                 {error && (
                   <p className="bg-red-500/20 text-red-400 p-3 rounded-lg mt-4 text-center capitalize">
