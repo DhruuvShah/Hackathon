@@ -1,152 +1,179 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../features/auth/authSlice';
 import { useCart } from '../context/CartContext';
-import logo from '../assets/images/Logo_-_Horizontal.png.webp'; // Make sure this path is correct
+import logo from '../assets/images/Logo_-_Horizontal.png.webp';
 import gsap from 'gsap';
+// ICONS
+import { BsCart2 } from "react-icons/bs";
+import { IoHomeOutline } from "react-icons/io5";
+import { LiaDumbbellSolid } from "react-icons/lia";
+import { BsShop, BsInfoCircle } from "react-icons/bs";
+import { motion, AnimatePresence } from "framer-motion";
 
-// --- SVG Icon Components ---
-const CartIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.658-.463 1.243-1.118 1.243H5.502c-.655 0-1.188-.585-1.118-1.243l1.263-12A1.125 1.125 0 015.502 7.5h12.996c.613 0 1.128.47.158.993z" />
-    </svg>
-);
-
-const ProfileIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
-    </svg>
-);
-
-const HamburgerIcon = () => (
-     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path>
-    </svg>
-);
-
-const CloseIcon = () => (
-    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-    </svg>
-);
+const NAV_TABS = [
+  { name: "Home", to: "/", icon: IoHomeOutline },
+  { name: "Programs", to: "/programs", icon: LiaDumbbellSolid },
+  { name: "Shop", to: "/shop", icon: BsShop },
+  { name: "About", to: "/about", icon: BsInfoCircle }
+];
 
 const Nav = () => {
-    const [isOpen, setIsOpen] = useState(false);
-    const { userInfo } = useSelector((state) => state.auth);
-    const dispatch = useDispatch();
-    const { cartItems } = useCart();
+  const [isOpen, setIsOpen] = useState(false);
+  const [hovered, setHovered] = useState(null);
+  const { userInfo } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const { cartItems } = useCart();
+  const navbarRef = useRef(null);
+  const mobileMenuRef = useRef(null);
+  const location = useLocation();
 
-    const navbarRef = useRef(null);
-    const mobileMenuRef = useRef(null);
+  const totalItemsInCart = cartItems.reduce((total, item) => total + item.quantity, 0);
 
-    const totalItemsInCart = cartItems.reduce((total, item) => total + item.quantity, 0);
-
-    const handleLogout = () => {
-        dispatch(logout());
-        setIsOpen(false);
+  useEffect(() => {
+    if (navbarRef.current) {
+      gsap.fromTo(
+        navbarRef.current,
+        { y: -24, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8, ease: "power2.out" }
+      );
     }
+  }, []);
+  useEffect(() => {
+    if (isOpen && mobileMenuRef.current) {
+      gsap.fromTo(
+        mobileMenuRef.current,
+        { y: -12, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }
+      );
+    }
+  }, [isOpen]);
 
-    const linkClass = ({ isActive }) => `transition-colors duration-300 ${isActive ? 'text-white' : 'text-gray-400 hover:text-white'}`;
-    const mobileLinkClass = "block py-2 text-lg " + linkClass({isActive: false});
+  // Tooltip always below icon, centered
+  const getTooltipStyle = (tabIndex) => {
+    if (typeof window === "undefined") return {};
+    const tabCount = NAV_TABS.length;
+    if (tabIndex === 0) return { left: '0', transform: 'translateX(0)' };
+    if (tabIndex === tabCount - 1) return { right: '0', left: 'auto', transform: 'translateX(0)' };
+    return { left: '50%', transform: 'translateX(-50%)' };
+  };
 
-    // GSAP animation for navbar on mount
-    useEffect(() => {
-        if (navbarRef.current) {
-            gsap.fromTo(
-                navbarRef.current,
-                { y: -32, opacity: 0 },
-                { y: 0, opacity: 1, duration: 0.8, ease: "power2.out" }
-            );
-        }
-    }, []);
-
-    // GSAP animation for mobile menu on open
-    useEffect(() => {
-        if (isOpen && mobileMenuRef.current) {
-            gsap.fromTo(
-                mobileMenuRef.current,
-                { y: -16, opacity: 0 },
-                { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }
-            );
-        }
-    }, [isOpen]);
-
-    return (
-        <header id="navbar" ref={navbarRef} className="fixed top-4 left-1/2 -translate-x-1/2 w-[95%] max-w-7xl z-50">
-            <nav className="glass-effect flex items-center justify-between p-3 rounded-2xl shadow-lg">
-                <Link to="/" className="flex-shrink-0">
-                    <img src={logo} alt="Centr Logo"/>
+  return (
+    <header id="navbar" ref={navbarRef} className="fixed top-3 left-1/2 -translate-x-1/2 w-[96%] max-w-6xl z-50">
+      <nav className="glass-effect flex items-center justify-between p-2 rounded-xl shadow-lg min-h-[50px]">
+        <Link to="/" className="flex-shrink-0">
+          <img src={logo} alt="Centr Logo"/>
+        </Link>
+        {/* --- Desktop Nav --- */}
+        <div className="hidden lg:flex items-center gap-6 relative">
+          {NAV_TABS.map((tab, idx) => {
+            const Icon = tab.icon;
+            const active = location.pathname === tab.to;
+            return (
+              <div
+                key={tab.name}
+                className="relative flex flex-col items-center"
+                onMouseEnter={() => setHovered(tab.name)}
+                onMouseLeave={() => setHovered(null)}
+              >
+                <Link to={tab.to} className="flex items-center group p-1.5">
+                  <Icon className={`w-6 h-6 transition-colors duration-200 ${active ? "text-blue-500" : "text-gray-300 group-hover:text-white"}`} />
                 </Link>
+                {/* Animated tooltip label BELOW icon */}
+                <AnimatePresence>
+                  {(hovered === tab.name) && (
+                    <motion.div
+                      key="tooltip"
+                      initial={{ opacity: 0, y: -6, scale: 0.92 }}
+                      animate={{ opacity: 1, y: 24, scale: 1 }}
+                      exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                      transition={{ duration: 0.15, type: 'spring', stiffness: 380, damping: 32 }}
+                      className="absolute z-50 px-3 py-1 mt-1 rounded-md bg-slate-900/95 text-white text-[14px] font-semibold shadow-xl pointer-events-none select-none border border-blue-800"
+                      style={getTooltipStyle(idx)}
+                    >
+                      {tab.name}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
+        </div>
 
-                <div className="hidden lg:flex items-center gap-8">
-                    <NavLink to="/" className={linkClass}>Home</NavLink>
-                    <NavLink to="/programs" className={linkClass}>Programs</NavLink>
-                    <NavLink to="/shop" className={linkClass}>Shop</NavLink>
-                    <NavLink to="/about" className={linkClass}>About</NavLink>
-                </div>
-
-                <div className="flex items-center gap-4">
-                    {/* Cart Icon */}
-                    <Link to="/cart" className="relative text-gray-400 hover:text-white transition-colors">
-                        <CartIcon />
-                        {totalItemsInCart > 0 && (
-                            <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                                {totalItemsInCart}
-                            </span>
-                        )}
-                    </Link>
-
-                    {/* Desktop: Profile Icon or Login Button */}
-                    <div className="hidden lg:flex">
-                        {userInfo ? (
-                            <Link to="/profile" className="text-gray-400 hover:text-white transition-colors">
-                                <ProfileIcon />
-                            </Link>
-                        ) : (
-                            <Link to="/login" className="bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 px-5 rounded-xl transition-all transform hover:scale-105">
-                                Login
-                            </Link>
-                        )}
-                    </div>
-
-                    {/* Mobile Menu Button */}
-                    <div className="lg:hidden">
-                        <button onClick={() => setIsOpen(!isOpen)} className="text-white focus:outline-none">
-                            {isOpen ? <CloseIcon /> : <HamburgerIcon />}
-                        </button>
-                    </div>
-                </div>
-            </nav>
-            
-            {/* Mobile Menu Panel */}
-            {isOpen && (
-                <div ref={mobileMenuRef} className="lg:hidden mt-2 glass-effect rounded-2xl p-6">
-                    <nav className="flex flex-col space-y-4">
-                        <NavLink to="/" className={mobileLinkClass} onClick={() => setIsOpen(false)}>Home</NavLink>
-                        <NavLink to="/programs" className={mobileLinkClass} onClick={() => setIsOpen(false)}>Programs</NavLink>
-                        <NavLink to="/shop" className={mobileLinkClass} onClick={() => setIsOpen(false)}>Shop</NavLink>
-                        <NavLink to="/about" className={mobileLinkClass} onClick={() => setIsOpen(false)}>About</NavLink>
-                        
-                        {userInfo && (
-                             <NavLink to="/profile" className={mobileLinkClass} onClick={() => setIsOpen(false)}>Profile</NavLink>
-                        )}
-
-                        <div className="border-t border-white/10 pt-4 mt-4">
-                            {userInfo ? (
-                                <button onClick={handleLogout} className="w-full text-left text-lg text-red-400 hover:text-red-300">
-                                    Logout
-                                </button>
-                            ) : (
-                                <Link to="/login" onClick={() => setIsOpen(false)} className="block w-full text-center bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-5 rounded-xl transition-colors">
-                                    Login
-                                </Link>
-                            )}
-                        </div>
-                    </nav>
-                </div>
+        {/* Cart & Profile */}
+        <div className="flex items-center gap-3">
+          <Link to="/cart" className="relative text-gray-400 hover:text-white transition-colors">
+            <BsCart2 className="w-6 h-6" />
+            {totalItemsInCart > 0 && (
+              <span className="absolute -top-1.5 -right-2 bg-blue-600 text-white text-[11px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                {totalItemsInCart}
+              </span>
             )}
-        </header>
-    );
+          </Link>
+          <div className="hidden lg:flex">
+            {userInfo ? (
+              <Link to="/profile" className="text-gray-400 hover:text-white transition-colors">
+                <ProfileIcon />
+              </Link>
+            ) : (
+              <Link to="/login" className="bg-blue-600 hover:bg-blue-500 text-white font-semibold py-1 px-3 rounded-lg transition-all transform hover:scale-105 text-[15px]">
+                Login
+              </Link>
+            )}
+          </div>
+          {/* Mobile Menu Button */}
+          <div className="lg:hidden">
+            <button onClick={() => setIsOpen(!isOpen)} className="text-white focus:outline-none">
+              {isOpen ? <CloseIcon /> : <HamburgerIcon />}
+            </button>
+          </div>
+        </div>
+      </nav>
+      {/* --- Mobile Menu --- */}
+      {isOpen && (
+        <div ref={mobileMenuRef} className="lg:hidden mt-2 glass-effect rounded-xl p-4">
+          <nav className="flex flex-col space-y-3">
+            {NAV_TABS.map(tab => (
+              <Link to={tab.to} className="block py-2 text-base text-gray-400 hover:text-white" onClick={() => setIsOpen(false)} key={tab.name}>
+                {tab.name}
+              </Link>
+            ))}
+            {userInfo && (
+              <Link to="/profile" className="block py-2 text-base text-gray-400 hover:text-white" onClick={() => setIsOpen(false)}>Profile</Link>
+            )}
+            <div className="border-t border-white/10 pt-3 mt-3">
+              {userInfo ? (
+                <button onClick={() => { dispatch(logout()); setIsOpen(false); }} className="w-full text-left text-base text-red-400 hover:text-red-300">
+                  Logout
+                </button>
+              ) : (
+                <Link to="/login" onClick={() => setIsOpen(false)} className="block w-full text-center bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
+                  Login
+                </Link>
+              )}
+            </div>
+          </nav>
+        </div>
+      )}
+    </header>
+  );
 };
+
+const ProfileIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
+  </svg>
+);
+const HamburgerIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+  </svg>
+);
+const CloseIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+  </svg>
+);
+
 export default Nav;

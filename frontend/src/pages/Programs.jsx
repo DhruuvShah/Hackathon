@@ -1,12 +1,11 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import RevealOnScroll from '../components/RevealOnScroll'; // A reusable animation component
 import regulatorImg from '../assets/images/hyrox_certified_desktop.png.webp';
 import acceleratorImg from '../assets/images/Section-1.png.webp';
 import recoverImg from '../assets/images/Section-2.png.webp';
 import sustainImg from '../assets/images/train_anywhere.png.webp';
 
-// New, more detailed program data
 export const programsData = [
     { 
         id: 'hyrox-regulator', 
@@ -42,11 +41,22 @@ export const programsData = [
     }
 ];
 
+const fadeUp = {
+    hidden: { opacity: 0, y: 36 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.75, type: "spring", stiffness: 190 } }
+};
+
+const fadeSide = dir => ({
+    hidden: { opacity: 0, x: dir === 'left' ? -40 : 40 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.7, type: "spring", stiffness: 230 } }
+});
+
 const Programs = () => (
     <section id="programs" className="py-20 sm:py-24 pt-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <RevealOnScroll>
-                <div className="text-center mb-20">
+            {/* Title */}
+            <MotionInView>
+                <motion.div variants={fadeUp} initial="hidden" animate="visible" className="text-center mb-20">
                     <h2 className="text-4xl md:text-5xl font-extrabold text-white">
                         Find Your Program
                     </h2>
@@ -54,12 +64,12 @@ const Programs = () => (
                         Engineered for every goal, from peak performance to active recovery.
                         Choose your path to excellence.
                     </p>
-                </div>
-            </RevealOnScroll>
+                </motion.div>
+            </MotionInView>
 
             <div className="space-y-24">
                 {programsData.map((program, index) => (
-                    <RevealOnScroll key={program.id}>
+                    <MotionInView key={program.id}>
                         <div className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center`}>
                             {/* Alternate image and text order for visual variety */}
                             <div className={`group relative rounded-3xl overflow-hidden ${index % 2 === 0 ? 'lg:order-1' : 'lg:order-2'}`}>
@@ -67,7 +77,13 @@ const Programs = () => (
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                             </div>
 
-                            <div className={`text-center lg:text-left ${index % 2 === 0 ? 'lg:order-2' : 'lg:order-1'}`}>
+                            {/* Animated text, slides from side (alt direction) */}
+                            <motion.div
+                                variants={fadeSide(index % 2 === 0 ? 'right' : 'left')}
+                                initial="hidden"
+                                animate="visible"
+                                className={`text-center lg:text-left ${index % 2 === 0 ? 'lg:order-2' : 'lg:order-1'}`}
+                            >
                                 <p className="text-blue-400 font-semibold mb-2">{program.category}</p>
                                 <h3 className="text-3xl font-bold text-white mb-4">{program.title}</h3>
                                 <p className="text-gray-300 text-lg mb-6">{program.description}</p>
@@ -81,12 +97,26 @@ const Programs = () => (
                                 <Link to={`/programs/${program.id}`} className="inline-block bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105">
                                     View Program
                                 </Link>
-                            </div>
+                            </motion.div>
                         </div>
-                    </RevealOnScroll>
+                    </MotionInView>
                 ))}
             </div>
         </div>
     </section>
 );
+
+// Helper to trigger animation only when section is in view
+function MotionInView({ children }) {
+    const ref = useRef(null);
+    const inView = useInView(ref, { once: true, margin: "-15% 0px" });
+    return (
+        <div ref={ref}>
+            {React.Children.map(children, child =>
+                React.cloneElement(child, { animate: inView ? "visible" : "hidden" })
+            )}
+        </div>
+    );
+}
+
 export default Programs;
