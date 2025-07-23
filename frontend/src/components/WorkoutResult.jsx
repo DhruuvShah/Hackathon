@@ -1,48 +1,35 @@
-import React from 'react';
+import React from "react";
+import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
+import remarkGfm from "remark-gfm";
 
-const WorkoutResult = ({ plan }) => {
-    // This is a simplified Markdown to HTML parser. For production, a library like 'marked' or 'react-markdown' would be more robust.
-    const renderMarkdown = (markdown) => {
-        let html = markdown
-            .replace(/^# (.*$)/gim, '<h1 class="text-3xl font-bold mb-4">$1</h1>')
-            .replace(/^## (.*$)/gim, '<h2 class="text-2xl font-bold mt-6 mb-3">$1</h2>')
-            .replace(/^### (.*$)/gim, '<h3 class="text-xl font-semibold mt-4 mb-2">$1</h3>')
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/^- (.*$)/gim, '<li class="ml-4 list-disc">$1</li>');
-
-        // Group list items
-        html = html.replace(/<\/li>\s*<li/g, '</li><li');
-        html = html.replace(/(<li.*<\/li>)/gs, '<ul>$1</ul>');
-        
-        // Handle tables
-        const tableRegex = /\|(.+)\|\s*<br \/>\|(.*)\|/g;
-        html = html.replace(tableRegex, (match, header, rows) => {
-            const headers = header.split('|').slice(1, -1).map(h => h.trim());
-            const rowData = rows.split(/<br \/>\|/).map(r => r.split('|').slice(1, -1).map(c => c.trim()));
-
-            let tableHtml = '<table class="w-full border-collapse mt-4 text-left">';
-            tableHtml += '<thead><tr>';
-            headers.forEach(h => tableHtml += `<th class="border border-gray-600 px-4 py-2">${h}</th>`);
-            tableHtml += '</tr></thead><tbody>';
-            rowData.forEach(row => {
-                if(row.length === headers.length && row.every(c => !c.startsWith('--'))) {
-                     tableHtml += '<tr>';
-                     row.forEach(cell => tableHtml += `<td class="border border-gray-600 px-4 py-2">${cell}</td>`);
-                     tableHtml += '</tr>';
-                }
-            });
-            tableHtml += '</tbody></table>';
-            return tableHtml;
-        }).replace(/<br \/>/g, '\n');
-
-        return { __html: html.replace(/\n/g, '<br />') };
-    };
-
-    return (
-        <div className="glass-effect rounded-3xl p-6 sm:p-8 space-y-4 prose prose-invert max-w-none prose-p:text-gray-300 prose-headings:text-white prose-strong:text-white">
-            <div dangerouslySetInnerHTML={renderMarkdown(plan)} />
-        </div>
-    );
-};
+// Add Tailwind/your classes to markdown elements using components prop:
+const WorkoutResult = ({ plan }) => (
+  <div className="glass-effect rounded-3xl p-6 sm:p-8 space-y-4 prose prose-invert max-w-none">
+    <ReactMarkdown
+      children={plan}
+      rehypePlugins={[rehypeRaw]}
+      remarkPlugins={[remarkGfm]}
+      components={{
+        h1: ({node, ...props}) => <h1 className="text-3xl font-bold mb-4" {...props} />,
+        h2: ({node, ...props}) => <h2 className="text-2xl font-bold mt-6 mb-3" {...props} />,
+        h3: ({node, ...props}) => <h3 className="text-xl font-semibold mt-4 mb-2" {...props} />,
+        strong: ({node, ...props}) => <strong className="text-blue-400" {...props} />,
+        ul: ({node, ...props}) => <ul className="ml-6 list-disc space-y-1" {...props} />,
+        ol: ({node, ...props}) => <ol className="ml-6 list-decimal space-y-1" {...props} />,
+        table: ({node, ...props}) => (
+          <table className="w-full border-collapse mt-4 text-left bg-gray-900/50 border border-gray-700 rounded-xl overflow-hidden" {...props} />
+        ),
+        th: ({node, ...props}) => (
+          <th className="border border-gray-700 px-4 py-2 bg-gray-900/80 text-blue-300" {...props} />
+        ),
+        td: ({node, ...props}) => (
+          <td className="border border-gray-700 px-4 py-2" {...props} />
+        ),
+        p: ({node, ...props}) => <p className="text-gray-300" {...props} />,
+      }}
+    />
+  </div>
+);
 
 export default WorkoutResult;

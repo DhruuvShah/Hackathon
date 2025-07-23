@@ -8,7 +8,26 @@ import {
 import { auth, db } from '../../firebase/config';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 
-// Get user info from localStorage if available
+// --------- CART PERSISTENCE HELPERS ---------
+function getCartKey(userInfo) {
+  if (userInfo?.uid) return `cartItems-${userInfo.uid}`;
+  if (userInfo?.email) return `cartItems-${userInfo.email}`;
+  return 'cartItems-guest';
+}
+
+// Move guest cart to user cart if user cart is empty
+function migrateGuestCartToUserCart(userInfo) {
+  if (!userInfo?.uid) return;
+  const guestCart = localStorage.getItem('cartItems-guest');
+  const userCartKey = getCartKey(userInfo);
+  const userCart = localStorage.getItem(userCartKey);
+  if (guestCart && (!userCart || userCart === '[]')) {
+    localStorage.setItem(userCartKey, guestCart);
+    localStorage.removeItem('cartItems-guest');
+  }
+}
+
+// --- User info from localStorage (works for both guest & user) ---
 const userInfoFromStorage = localStorage.getItem('userInfo')
   ? JSON.parse(localStorage.getItem('userInfo'))
   : null;
@@ -28,6 +47,7 @@ export const signInWithGoogle = createAsyncThunk(
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
+      // Firestore: create user if not exists
       const userDocRef = doc(db, 'users', user.uid);
       const userDoc = await getDoc(userDocRef);
 
@@ -39,12 +59,17 @@ export const signInWithGoogle = createAsyncThunk(
         });
       }
 
+      // --- Persist simplified user ---
       const simplifiedUser = {
         uid: user.uid,
         email: user.email,
         name: user.displayName,
       };
       localStorage.setItem('userInfo', JSON.stringify(simplifiedUser));
+
+      // --- Migrate guest cart to user cart if needed ---
+      migrateGuestCartToUserCart(simplifiedUser);
+
       return simplifiedUser;
     } catch (error) {
       return rejectWithValue(
@@ -60,6 +85,9 @@ export const signInWithGoogle = createAsyncThunk(
 export const logout = createAsyncThunk('auth/logout', async () => {
   await signOut(auth);
   localStorage.removeItem('userInfo');
+  // Optional: do NOT clear cart here, user cart is kept in localStorage under their UID key
+  // If you want to clear the cart on logout, uncomment next line:
+  // localStorage.removeItem(getCartKey({ uid: ??? })); 
 });
 
 // --- UPDATE PROFILE THUNK (FINAL WORKING CODE) ---

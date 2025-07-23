@@ -66,7 +66,7 @@ const Support = () => (
                                 <form className="space-y-4">
                                     <input type="email" placeholder="Your Email" className="w-full bg-gray-900/50 border border-gray-700 text-white rounded-xl p-3 focus:ring-blue-500 focus:border-blue-500" />
                                     <textarea placeholder="Your Message" rows="5" className="w-full bg-gray-900/50 border border-gray-700 text-white rounded-xl p-3 focus:ring-blue-500 focus:border-blue-500"></textarea>
-                                    <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-6 rounded-xl transition-colors">
+                                    <button type="submit" className="w-full bg-blue-600 hover:cursor-pointer hover:bg-blue-500 text-white font-semibold py-3 px-6 rounded-xl transition-colors">
                                         Send Message
                                     </button>
                                 </form>

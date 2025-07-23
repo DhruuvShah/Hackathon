@@ -59,6 +59,15 @@ const Nav = () => {
     return { left: '50%', transform: 'translateX(-50%)' };
   };
 
+  // Close menu on Escape key
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === "Escape" && isOpen) setIsOpen(false);
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [isOpen]);
+
   return (
     <header id="navbar" ref={navbarRef} className="fixed top-3 left-1/2 -translate-x-1/2 w-[96%] max-w-6xl z-50">
       <nav className="glass-effect flex items-center justify-between p-2 rounded-xl shadow-lg min-h-[50px]">
@@ -132,29 +141,46 @@ const Nav = () => {
       </nav>
       {/* --- Mobile Menu --- */}
       {isOpen && (
-        <div ref={mobileMenuRef} className="lg:hidden mt-2 glass-effect rounded-xl p-4">
-          <nav className="flex flex-col space-y-3">
-            {NAV_TABS.map(tab => (
-              <Link to={tab.to} className="block py-2 text-base text-gray-400 hover:text-white" onClick={() => setIsOpen(false)} key={tab.name}>
-                {tab.name}
-              </Link>
-            ))}
-            {userInfo && (
-              <Link to="/profile" className="block py-2 text-base text-gray-400 hover:text-white" onClick={() => setIsOpen(false)}>Profile</Link>
-            )}
-            <div className="border-t border-white/10 pt-3 mt-3">
-              {userInfo ? (
-                <button onClick={() => { dispatch(logout()); setIsOpen(false); }} className="w-full text-left text-base text-red-400 hover:text-red-300">
-                  Logout
-                </button>
-              ) : (
-                <Link to="/login" onClick={() => setIsOpen(false)} className="block w-full text-center bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
-                  Login
+        <>
+          {/* Fullscreen Black Backdrop */}
+          <div
+            className="fixed inset-0 z-40 bg-black/80"
+            aria-hidden="true"
+            onClick={() => setIsOpen(false)}
+          />
+          {/* Mobile Menu */}
+          <div
+            ref={mobileMenuRef}
+            className="fixed left-1/2 top-12 z-50 w-[96%] max-w-sm glass-effect rounded-2xl p-6"
+            style={{
+              transform: "translateX(-50%)",
+              background: "rgba(24,24,28,0.93)"
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <nav className="flex flex-col space-y-3">
+              {NAV_TABS.map(tab => (
+                <Link to={tab.to} className="block py-2 text-base text-gray-400 hover:text-white" onClick={() => setIsOpen(false)} key={tab.name}>
+                  {tab.name}
                 </Link>
+              ))}
+              {userInfo && (
+                <Link to="/profile" className="block py-2 text-base text-gray-400 hover:text-white" onClick={() => setIsOpen(false)}>Profile</Link>
               )}
-            </div>
-          </nav>
-        </div>
+              <div className="border-t border-white/10 pt-3 mt-3">
+                {userInfo ? (
+                  <button onClick={() => { dispatch(logout()); setIsOpen(false); }} className="w-full text-left text-base text-red-400 hover:text-red-300">
+                    Logout
+                  </button>
+                ) : (
+                  <Link to="/login" onClick={() => setIsOpen(false)} className="block w-full text-center bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
+                    Login
+                  </Link>
+                )}
+              </div>
+            </nav>
+          </div>
+        </>
       )}
     </header>
   );

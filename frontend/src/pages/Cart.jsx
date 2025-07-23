@@ -5,15 +5,7 @@ import RevealOnScroll from '../components/RevealOnScroll';
 import { useSelector } from 'react-redux';
 import { motion, AnimatePresence, animate } from 'framer-motion';
 
-const parsePrice = (price) => {
-  if (typeof price === 'number') return price;
-  if (typeof price === 'string') {
-    const number = parseFloat(price.replace(/[^0-9.]/g, ''));
-    return isNaN(number) ? 0 : number;
-  }
-  return 0;
-};
-const formatMoney = (amt) => '₹' + amt.toFixed(2);
+const formatMoney = (amt) => '$' + amt.toFixed(2);
 
 function AnimatedAmount({ target }) {
   const [display, setDisplay] = useState(0);
@@ -30,7 +22,15 @@ function AnimatedAmount({ target }) {
   return <span className="font-extrabold tracking-tight">{formatMoney(display)}</span>;
 }
 
-// --- Enhanced Card Animation ---
+const parsePrice = (price) => {
+  if (typeof price === 'number') return price;
+  if (typeof price === 'string') {
+    const number = parseFloat(price.replace(/[^0-9.]/g, ''));
+    return isNaN(number) ? 0 : number;
+  }
+  return 0;
+};
+
 const CreditCardCheckout = ({ amount, shipping, total, onClose }) => {
   const [flipped, setFlipped] = useState(false);
 
@@ -104,7 +104,6 @@ const CreditCardCheckout = ({ amount, shipping, total, onClose }) => {
           }}
         >
           <motion.svg width="58" height="58" viewBox="0 0 54 54" className="mb-2">
-            {/* Circle: white glass line */}
             <motion.circle
               cx="27"
               cy="27"
@@ -122,7 +121,6 @@ const CreditCardCheckout = ({ amount, shipping, total, onClose }) => {
                 delay: 0.16
               }}
             />
-            {/* Tick: pure white line */}
             <motion.path
               d="M17 28 L25 36 L39 20"
               stroke="#fff"
@@ -164,22 +162,35 @@ const CreditCardCheckout = ({ amount, shipping, total, onClose }) => {
   );
 };
 
-
 const Cart = () => {
-  const { cartItems, removeFromCart } = useCart();
+  const { cartItems, removeFromCart, clearCart, loading } = useCart();
   const { userInfo } = useSelector((state) => state.auth);
   const [showCheckout, setShowCheckout] = useState(false);
+  const [pendingClear, setPendingClear] = useState(false);
 
   const subtotal = cartItems.reduce((total, item) => {
     return total + (parsePrice(item.price) * item.quantity);
   }, 0);
 
-  // --- Shipping: ₹199 if subtotal < ₹5000, else free
-  const shipping = subtotal > 0 && subtotal < 5000 ? 199 : 0;
+  const shipping = subtotal > 0 && subtotal < 100 ? 4.99 : 0;
   const total = subtotal + shipping;
 
   const shoppingLink = userInfo ? '/shop' : '/login';
   const buttonText = userInfo ? 'Continue Shopping' : 'Login to Shop';
+
+  // When card closes, THEN clear cart
+  const handleCloseCheckout = () => {
+    setShowCheckout(false);
+    setPendingClear(true);
+  };
+
+  // Actually clear the cart after card disappears (pendingClear = true, showCheckout = false)
+  useEffect(() => {
+    if (!showCheckout && pendingClear) {
+      clearCart();
+      setPendingClear(false);
+    }
+  }, [showCheckout, pendingClear, clearCart]);
 
   const handleCheckout = () => setShowCheckout(true);
 
@@ -188,7 +199,11 @@ const Cart = () => {
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <RevealOnScroll>
           <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-8">Your Cart</h1>
-          {cartItems.length === 0 ? (
+          {loading ? (
+            <div className="flex justify-center items-center min-h-[150px]">
+              <span className="text-blue-400 text-lg animate-pulse">Loading Cart...</span>
+            </div>
+          ) : cartItems.length === 0 ? (
             <div className="glass-effect rounded-3xl p-8 text-center">
               <p className="text-xl text-gray-300">Your cart is currently empty.</p>
               <Link to={shoppingLink} className="inline-block mt-6 bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-8 rounded-xl transition-all">
@@ -245,7 +260,12 @@ const Cart = () => {
       </section>
       <AnimatePresence>
         {showCheckout && (
-          <CreditCardCheckout amount={subtotal} shipping={shipping} total={total} onClose={() => setShowCheckout(false)} />
+          <CreditCardCheckout
+            amount={subtotal}
+            shipping={shipping}
+            total={total}
+            onClose={handleCloseCheckout}
+          />
         )}
       </AnimatePresence>
     </div>

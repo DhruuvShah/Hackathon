@@ -7,26 +7,51 @@ import { toast } from "react-toastify";
 import { useCart } from "../context/CartContext";
 import { motion } from "framer-motion";
 
+// Utility to get user plan history from localStorage
+function getWorkoutHistory(email) {
+  if (!email) return [];
+  try {
+    const stored = localStorage.getItem(`workoutHistory_${email}`);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
 const Profile = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { cartItems, clearCart } = useCart(); // <--- get cart actions
+  const { cartItems, clearCart } = useCart();
 
   const { userInfo, status, error } = useSelector((state) => state.auth);
 
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [planHistory, setPlanHistory] = useState([]);
 
   const prevStatusRef = useRef(status);
 
+  // Load user info and plan history
   useEffect(() => {
     if (userInfo) {
       setName(userInfo.name || "");
       setEmail(userInfo.email || "");
+      setPlanHistory(getWorkoutHistory(userInfo.email));
+    } else {
+      setName("");
+      setEmail("");
+      setPlanHistory([]);
     }
     dispatch(clearError());
   }, [userInfo, dispatch]);
+
+  // Refresh plan history if user changes or after a plan is generated
+  useEffect(() => {
+    if (userInfo) {
+      setPlanHistory(getWorkoutHistory(userInfo.email));
+    }
+  }, [userInfo, status]);
 
   useEffect(() => {
     if (prevStatusRef.current === "loading" && status !== "loading") {
@@ -38,10 +63,9 @@ const Profile = () => {
     prevStatusRef.current = status;
   }, [status]);
 
-  // --- Cart-aware Logout
   const handleLogout = () => {
     dispatch(logout());
-    clearCart(); // <<<<<<==== clear the cart (context & localStorage)
+    clearCart();
     toast.success("Logged Out Successfully");
     navigate("/login");
   };
@@ -63,7 +87,12 @@ const Profile = () => {
   // Animation config
   const avatarVariants = {
     initial: { scale: 0.95, opacity: 0, y: 16 },
-    animate: { scale: 1, opacity: 1, y: 0, transition: { duration: 0.7, type: "spring", bounce: 0.3 } }
+    animate: {
+      scale: 1,
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.7, type: "spring", bounce: 0.3 },
+    },
   };
 
   return (
@@ -78,9 +107,9 @@ const Profile = () => {
               View and manage your account details.
             </p>
           </div>
-          <motion.div 
-            initial={{ opacity: 0, y: 40 }} 
-            animate={{ opacity: 1, y: 0 }} 
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, type: "spring", bounce: 0.16 }}
             className="glass-effect backdrop-blur-2xl rounded-3xl p-10 shadow-2xl border border-white/10"
           >
@@ -163,18 +192,30 @@ const Profile = () => {
                     Logout
                   </button>
                 </div>
-                {/* Show user's cart preview for fun (optional, can remove): */}
+                {/* Cart Preview */}
                 {cartItems.length > 0 && (
                   <div className="mt-8 bg-black/30 rounded-2xl p-5 text-gray-200 border border-white/5">
                     <div className="mb-3 font-semibold text-white/90">
-                      Items in Cart <span className="text-blue-300">({cartItems.length})</span>
+                      Items in Cart{" "}
+                      <span className="text-blue-300">
+                        ({cartItems.length})
+                      </span>
                     </div>
                     <ul className="divide-y divide-white/10 text-sm">
                       {cartItems.slice(0, 3).map((item, idx) => (
-                        <li key={item.id || idx} className="flex items-center gap-3 py-2">
-                          <img src={item.imgPrimary || item.img} alt={item.name} className="w-8 h-8 rounded object-cover border border-white/10" />
+                        <li
+                          key={item.id || idx}
+                          className="flex items-center gap-3 py-2"
+                        >
+                          <img
+                            src={item.imgPrimary || item.img}
+                            alt={item.name}
+                            className="w-8 h-8 rounded object-cover border border-white/10"
+                          />
                           <span className="flex-1">{item.name}</span>
-                          <span className="text-xs text-gray-400">x{item.quantity || 1}</span>
+                          <span className="text-xs text-gray-400">
+                            x{item.quantity || 1}
+                          </span>
                         </li>
                       ))}
                       {cartItems.length > 3 && (
@@ -185,6 +226,50 @@ const Profile = () => {
                     </ul>
                   </div>
                 )}
+
+                {/* --- WORKOUT PLAN HISTORY --- */}
+                {userInfo && planHistory && planHistory.length > 0 && (
+                  <div className="mt-8 glass-effect p-6 rounded-2xl border border-white/10 shadow-xl">
+                    <div className="text-lg font-bold text-white mb-3">
+                      Your Recent Workout Plans
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full text-sm text-left">
+                        <thead>
+                          <tr>
+                            <th className="px-3 py-2 text-blue-400">Goal</th>
+                            <th className="px-3 py-2 text-blue-400">Style</th>
+                            <th className="px-3 py-2 text-blue-400">
+                              Duration
+                            </th>
+                            <th className="px-3 py-2 text-blue-400">
+                              Generated
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {planHistory.map((plan, idx) => (
+                            <tr
+                              key={idx}
+                              className="odd:bg-white/0 even:bg-white/5"
+                            >
+                              <td className="px-3 py-2">{plan.goal}</td>
+                              <td className="px-3 py-2">{plan.style}</td>
+                              <td className="px-3 py-2">{plan.duration} min</td>
+                              <td className="px-3 py-2">
+                                {new Date(plan.date).toLocaleString("en-IN", {
+                                  dateStyle: "medium",
+                                  timeStyle: "short",
+                                })}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+                {/* --- END HISTORY --- */}
               </>
             )}
           </motion.div>
