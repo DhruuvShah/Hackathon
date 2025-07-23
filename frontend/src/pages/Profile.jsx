@@ -139,14 +139,14 @@ const Profile = () => {
                   <button
                     type="button"
                     onClick={handleCancelEdit}
-                    className="w-full bg-gray-600/80 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300"
+                    className="w-full bg-gray-600/80 hover:cursor-pointer hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={status === "loading"}
-                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 disabled:opacity-50"
+                    className="w-full bg-blue-600 hover:cursor-pointer hover:bg-blue-500 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 disabled:opacity-50"
                   >
                     {status === "loading" ? "Saving..." : "Save Changes"}
                   </button>
@@ -181,13 +181,13 @@ const Profile = () => {
                 <div className="mt-10 pt-8 border-t border-white/10 flex flex-col sm:flex-row gap-4">
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300"
+                    className="w-full bg-blue-600 hover:cursor-pointer hover:bg-blue-500 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300"
                   >
                     Edit Profile
                   </button>
                   <button
                     onClick={handleLogout}
-                    className="w-full bg-red-600/80 hover:bg-red-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300"
+                    className="w-full bg-red-600/80 hover:cursor-pointer hover:bg-red-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300"
                   >
                     Logout
                   </button>

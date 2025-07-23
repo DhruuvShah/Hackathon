@@ -29,14 +29,13 @@ const Login = () => {
   };
 
   return (
-    <section className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-black text-white">
+    <section className="min-h-screen h-screen grid grid-cols-1 lg:grid-cols-2 bg-black text-white">
       {/* Left Column: Login Form */}
-      <div className="flex flex-col justify-center items-center p-8">
+      <div className="flex flex-col justify-center items-center p-8 h-full">
         <div className="w-full max-w-sm">
           <RevealOnScroll>
             <Link to="/">
-              <img className="mb-5 h-8" src={logo} alt="Centr Logo" />{" "}
-              {/* Added a class for sizing */}
+              <img className="mb-5 h-8" src={logo} alt="Centr Logo" />
             </Link>
             <h2 className="text-3xl font-bold text-white mb-2">
               Welcome back!
@@ -55,7 +54,7 @@ const Login = () => {
               <button
                 onClick={handleGoogleSignIn}
                 disabled={status === "loading"}
-                className="w-full flex items-center justify-center gap-3 bg-gray-800 hover:bg-gray-700 font-semibold py-3 px-6 rounded-lg transition-all duration-300 disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-3 bg-gray-800 hover:cursor-pointer hover:bg-gray-700 font-semibold py-3 px-6 rounded-lg transition-all duration-300 disabled:opacity-50"
               >
                 <svg className="w-6 h-6" viewBox="0 0 48 48">
                   <path
@@ -83,7 +82,7 @@ const Login = () => {
       </div>
 
       {/* Right Column: Image */}
-      <div className="hidden lg:block">
+      <div className="hidden lg:block h-full">
         <img
           src="https://prod-cdn.centr.com/deploy/static/images/login/login-desktop.jpg?v=3"
           alt="Fitness motivation"
